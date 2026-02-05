@@ -40,20 +40,26 @@ This creates a global `htpy-lsp` command.
 
 ### 1. OpenCode
 
-OpenCode uses `opencode.json` in the project root for local LSP settings, or `~/.config/opencode/opencode.json` for global settings.
+OpenCode uses `opencode.json` in the project root for local LSP settings, or its global config (e.g., `~/.config/opencode/opencode.json` on Linux/Mac).
 
-Add the following to your `opencode.json`:
+Add the following to your configuration:
 
 ```json
 {
 	"lsp": {
 		"htpy-lsp": {
-			"command": ["/Users/cali/.local/bin/htpy-lsp"],
+			"command": ["/path/to/htpy-lsp"],
 			"extensions": [".py"]
 		}
 	}
 }
 ```
+
+> [!NOTE]
+> **Executable Path Examples:**
+>
+> - **Mac/Linux**: `/Users/YOUR_USER/.local/bin/htpy-lsp` or `/usr/local/bin/htpy-lsp`
+> - **Windows**: `C:\Users\YOUR_USER\AppData\Roaming\Python\Scripts\htpy-lsp.exe`
 
 ### 2. VS Code
 
@@ -65,7 +71,7 @@ Create a `.vscode/lsp-proxy.json` file in your workspace:
 [
 	{
 		"languageId": "python",
-		"command": "/Users/cali/.local/bin/htpy-lsp",
+		"command": "/path/to/htpy-lsp",
 		"fileExtensions": [".py"]
 	}
 ]
