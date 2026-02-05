@@ -100,10 +100,11 @@ div("Hello")  # Use div["Hello"]
 
 ```python
 from datastar_py import attribute_generator as data
-from starlette.responses import HTMLResponse
+from starlette.responses import HtpyResponse
+from fastapi.responses import HTMLResponse
 
 # ✅ Correct: Datastar in ()
-button(data.on("click", "increment"))["+"]
+button(data.on("click", "$count += 1"))["+"]
 
 # ✅ Correct: HtpyResponse wrapper
 def home() -> HtpyResponse:
