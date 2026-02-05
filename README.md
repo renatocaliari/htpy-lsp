@@ -57,9 +57,7 @@ Add the following to your `opencode.json`:
 
 ### 2. VS Code
 
-Since `htpy-lsp` is a custom server, you can use the [Generic LSP Client](https://marketplace.visualstudio.com/items?itemName=GoranSljivic.glspc) or [LSP Proxy](https://marketplace.visualstudio.com/items?itemName=mjmorales.generic-lsp-proxy) extension.
-
-#### Using LSP Proxy (Recommended)
+Since `htpy-lsp` is a custom server, you can use the [Generic LSP Proxy](https://open-vsx.org/vscode/item?itemName=mjmorales.generic-lsp-proxy) extension.
 
 Create a `.vscode/lsp-proxy.json` file in your workspace:
 
