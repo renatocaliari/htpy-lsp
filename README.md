@@ -1,6 +1,11 @@
-# htpy-lsp
+# htpy-lsp (python)
 
-A Language Server Protocol (LSP) server for validating `htpy` coding usage, including **Datastar** integration patterns.
+A Language Server Protocol (LSP) server for validating `htpy` coding usage, including **Datastar** and FastApi integration patterns.
+
+> [!TIP]
+> **Why this matters?**
+> While `htpy` is powerful and type-safe, its syntax (brackets for content, parentheses for attributes) can be counter-intuitive for developers coming from React/Jinja.
+> **LLMs and AI coding assistants frequently fail** to follow these rules, often nesting content in parentheses. This LSP serves as a critical safety net for both humans and AI to ensure correct code generation and execution.
 
 ## Rules Enforced
 
