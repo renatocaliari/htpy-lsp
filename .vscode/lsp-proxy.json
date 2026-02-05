@@ -1,0 +1,7 @@
+[
+	{
+		"languageId": "python",
+		"command": "/Users/cali/.local/bin/htpy-lsp",
+		"fileExtensions": [".py"]
+	}
+]
