@@ -51,18 +51,36 @@ class HtpyVisitor(ast.NodeVisitor):
         is_htpy_tag_call = self._is_htpy_element(node.func)
         
         if is_htpy_tag_call:
+            # Rule: Protect against 'class' or 'cls' instead of 'class_'
+            for kw in node.keywords:
+                if kw.arg in {"class", "cls"}:
+                    self.add_diagnostic(
+                        kw,
+                        f"Use 'class_' instead of '{kw.arg}' for htpy attributes. 'class' is a Python reserved keyword and 'cls' is not the expected name for htpy."
+                    )
+
             # Rule 1: Content in () is invalid (except .class or data.*)
+            # Rule: Class shorthand order - must be at the beginning of positional args
+            non_shorthand_seen = False
             for arg in node.args:
                 is_valid_positional = False
+                is_shorthand = False
                 
-                # Check for class shorthand: ".class"
-                if isinstance(arg, ast.Constant) and isinstance(arg.value, str) and arg.value.startswith("."):
+                # Check for class shorthand: ".class" or "#id"
+                if isinstance(arg, ast.Constant) and isinstance(arg.value, str) and arg.value.startswith((".", "#")):
                     is_valid_positional = True
+                    is_shorthand = True
+                    if non_shorthand_seen:
+                         self.add_diagnostic(
+                            arg,
+                            f"Class/ID shorthand '{arg.value}' should be positioned at the beginning of parentheses, before other positional helpers like data.*."
+                        )
                 
                 # Check for Datastar helper: data.on(...), data.attr(...)
                 elif isinstance(arg, ast.Call) and isinstance(arg.func, ast.Attribute):
                     if isinstance(arg.func.value, ast.Name) and arg.func.value.id == "data":
                         is_valid_positional = True
+                        non_shorthand_seen = True
                 
                 if not is_valid_positional:
                      self.add_diagnostic(

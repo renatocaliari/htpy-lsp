@@ -59,6 +59,15 @@ def test_validator():
         ("div(data.on('click', 'action'))", 0),      # PASS: data.* helper in ()
         ("div(data.on('click', 'action'), id='foo', class_='bar')", 0),      # PASS: data.* helper in ()
         ("div(id='foo', class_='bar', **props)", 0), # PASS: Multiple attributes
+        ("div('.my-class', data.on('click', '...'))", 0), # PASS: Shorthand first
+        ("div(data.on('click', '...'), '.my-class')", 1), # FAIL: Shorthand after other helper
+        
+        # --- ATTR NAMES (class vs class_) ---
+        ("div(class_='foo')", 0),                     # PASS: class_ is correct
+        ("div(cls='foo')", 1),                        # FAIL: cls is incorrect
+        # Note: div(class='foo') would be a SyntaxError in Python. 
+        # But we can test it as a syntax error case.
+        ("div(class='foo')", 1),                      # FAIL: Syntax Error (reserved word)
         
         # --- RESPONSE & RETURN TYPES ---
         ("HTMLResponse(div['hello'])", 1),           # FAIL: Suggest HtpyResponse

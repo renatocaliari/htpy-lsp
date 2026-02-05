@@ -7,6 +7,7 @@ div("This should be a warning")
 span("Content", id="my-span")
 
 # ✅ Correct: Attributes in (), content in []
+
 div(id="container")[
     span(".text-bold")["Hello World"]
 ]
