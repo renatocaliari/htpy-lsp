@@ -12,6 +12,9 @@ dependencies = [
 [project.scripts]
 htpy-lsp = "htpy_lsp.main:main"
 
+[tool.hatch.build.targets.wheel]
+packages = ["htpy_lsp"]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

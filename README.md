@@ -28,6 +28,51 @@ A Language Server Protocol (LSP) server for validating `htpy` coding usage, incl
 pip install .
 ```
 
+### Global Installation (Recommended)
+
+Using `uv` to install the tool globally and isolated:
+
+```bash
+uv tool install htpy-lsp
+# Or from local source:
+uv tool install .
+```
+
+This creates a global `htpy-lsp` command.
+
+## Editor Configuration
+
+### 1. OpenCode
+
+OpenCode uses `~/.opencode/config.json` for global LSP settings. Add the following:
+
+```json
+{
+	"lsp": {
+		"htpy-lsp": {
+			"command": ["htpy-lsp"],
+			"filetypes": ["python"]
+		}
+	}
+}
+```
+
+### 2. VS Code
+
+Since `htpy-lsp` is a custom server, you can use the [Generic LSP Client](https://marketplace.visualstudio.com/items?itemName=GoranSljivic.glspc) extension.
+
+In your `settings.json`:
+
+```json
+{
+	"glspc.server.command": "htpy-lsp",
+	"glspc.server.languageId": "python",
+	"glspc.server.label": "htpy-lsp"
+}
+```
+
+_(Alternatively, for more robust multi-LSP support, consider extensions that allow multiple servers per language ID)._
+
 ## Usage Examples
 
 ### Proper Syntax
