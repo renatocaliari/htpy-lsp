@@ -24,10 +24,6 @@ A Language Server Protocol (LSP) server for validating `htpy` coding usage, incl
 
 ## Installation
 
-```bash
-pip install .
-```
-
 ### Global Installation (Recommended)
 
 Using `uv` to install the tool globally and isolated:
@@ -44,14 +40,16 @@ This creates a global `htpy-lsp` command.
 
 ### 1. OpenCode
 
-OpenCode uses `~/.opencode/config.json` for global LSP settings. Add the following:
+OpenCode uses `opencode.json` in the project root for local LSP settings, or `~/.config/opencode/opencode.json` for global settings.
+
+Add the following to your `opencode.json`:
 
 ```json
 {
 	"lsp": {
 		"htpy-lsp": {
-			"command": ["htpy-lsp"],
-			"filetypes": ["python"]
+			"command": ["/Users/cali/.local/bin/htpy-lsp"],
+			"extensions": [".py"]
 		}
 	}
 }
@@ -59,19 +57,21 @@ OpenCode uses `~/.opencode/config.json` for global LSP settings. Add the followi
 
 ### 2. VS Code
 
-Since `htpy-lsp` is a custom server, you can use the [Generic LSP Client](https://marketplace.visualstudio.com/items?itemName=GoranSljivic.glspc) extension.
+Since `htpy-lsp` is a custom server, you can use the [Generic LSP Client](https://marketplace.visualstudio.com/items?itemName=GoranSljivic.glspc) or [LSP Proxy](https://marketplace.visualstudio.com/items?itemName=mjmorales.generic-lsp-proxy) extension.
 
-In your `settings.json`:
+#### Using LSP Proxy (Recommended)
+
+Create a `.vscode/lsp-proxy.json` file in your workspace:
 
 ```json
-{
-	"glspc.server.command": "htpy-lsp",
-	"glspc.server.languageId": "python",
-	"glspc.server.label": "htpy-lsp"
-}
+[
+	{
+		"languageId": "python",
+		"command": "/Users/cali/.local/bin/htpy-lsp",
+		"fileExtensions": [".py"]
+	}
+]
 ```
-
-_(Alternatively, for more robust multi-LSP support, consider extensions that allow multiple servers per language ID)._
 
 ## Usage Examples
 
