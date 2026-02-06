@@ -83,6 +83,10 @@ div(
         ('button(**{"data-on-click": "..."})', 1),   # FAIL: Suggest data.on
         ('button(data_on_click="...")', 1),          # FAIL: Suggest data.on.click
         ('button(data_id="foo")', 1),                # FAIL: Suggest data.id
+        ('''button(
+            class_="btn btn-primary",
+            **{"data-on-click": "..."}
+        )["Store Secret"]''', 1),                    # FAIL: Mixed case with class_ and ** unpacking
         
         # --- VARIABLES & SIGNALS (PASSTHROUGH) ---
         ("section(approval_signals)", 0),             # PASS: Variables are allowed
