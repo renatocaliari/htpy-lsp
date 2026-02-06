@@ -87,6 +87,8 @@ div(
             class_="btn btn-primary",
             **{"data-on-click": "..."}
         )["Store Secret"]''', 1),                    # FAIL: Mixed case with class_ and ** unpacking
+        ('button(data.on("click", "..."))', 0),      # PASS: Recommended helper
+        ('button(data.id("foo"))', 0),               # PASS: Recommended helper
         
         # --- VARIABLES & SIGNALS (PASSTHROUGH) ---
         ("section(approval_signals)", 0),             # PASS: Variables are allowed
