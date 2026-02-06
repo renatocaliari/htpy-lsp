@@ -51,6 +51,26 @@ class HtpyVisitor(ast.NodeVisitor):
                         kw,
                         f"Use 'class_' instead of '{kw.arg}' for htpy attributes. 'class' is a Python reserved keyword and 'cls' is not the expected name for htpy."
                     )
+                
+                # Rule: Detect manual data_... keyword arguments
+                if kw.arg and kw.arg.startswith("data_"):
+                    helper_name = kw.arg[5:].replace("_", ".") # Simple heuristic for nested data attributes
+                    self.add_diagnostic(
+                        kw,
+                        f"Use the 'data.*' helper instead of manual keyword argument '{kw.arg}'. "
+                        f"Example: data.{helper_name}(...) at the beginning of parentheses."
+                    )
+                
+                # Rule: Detect **{"data-...": ...} unpacking
+                if kw.arg is None and isinstance(kw.value, ast.Dict):
+                    for i, key_node in enumerate(kw.value.keys):
+                        if key_node and isinstance(key_node, ast.Constant) and isinstance(key_node.value, str):
+                            if key_node.value.startswith("data-"):
+                                self.add_diagnostic(
+                                    kw,
+                                    f"Avoid using '**' unpacking for Datastar attributes like '{key_node.value}'. "
+                                    f"Use the 'data.*' helper at the beginning of the parentheses for better readability and type safety."
+                                )
 
             # Rule 1: Content in () is invalid (except .class or data.*)
             # Rule: Class shorthand order - must be at the beginning of positional args

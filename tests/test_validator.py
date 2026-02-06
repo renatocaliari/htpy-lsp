@@ -77,7 +77,12 @@ div(
     ),
     class_="flex justify-between items-center mb-6",
 )
-        """, 5), # Expected 5: h2 in div, nested div in div, input in inner div, button call in inner div, string in button
+        """, 6), # Expected 6: h2 in div, nested div in div, input in inner div, data_bind in input, button call in inner div, string in button
+        
+        # --- DATA ATTRIBUTTES ENFORCEMENT ---
+        ('button(**{"data-on-click": "..."})', 1),   # FAIL: Suggest data.on
+        ('button(data_on_click="...")', 1),          # FAIL: Suggest data.on.click
+        ('button(data_id="foo")', 1),                # FAIL: Suggest data.id
         
         # --- VARIABLES & SIGNALS (PASSTHROUGH) ---
         ("section(approval_signals)", 0),             # PASS: Variables are allowed
