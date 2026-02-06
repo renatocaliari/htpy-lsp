@@ -54,11 +54,11 @@ class HtpyVisitor(ast.NodeVisitor):
                 
                 # Rule: Detect manual data_... keyword arguments
                 if kw.arg and kw.arg.startswith("data_"):
-                    helper_name = kw.arg[5:].replace("_", ".") # Simple heuristic for nested data attributes
+                    helper_name = kw.arg[5:].replace("_", ".")
                     self.add_diagnostic(
                         kw,
-                        f"Use the 'data.*' helper instead of manual keyword argument '{kw.arg}'. "
-                        f"Example: data.{helper_name}(...) at the beginning of parentheses."
+                        f"Avoid manual keyword argument '{kw.arg}'. Use the 'data.' helper at the beginning of the parentheses. "
+                        f"Example: data.{helper_name}(...)"
                     )
                 
                 # Rule: Detect **{"data-...": ...} unpacking
@@ -68,8 +68,8 @@ class HtpyVisitor(ast.NodeVisitor):
                             if key_node.value.startswith("data-"):
                                 self.add_diagnostic(
                                     kw,
-                                    f"Avoid using '**' unpacking for Datastar attributes like '{key_node.value}'. "
-                                    f"Use the 'data.*' helper at the beginning of the parentheses for better readability and type safety."
+                                    f"Do not use unpacking '**' or 'data-' format for '{key_node.value}'. "
+                                    f"Use the 'data.' helper as the first arguments in the parentheses."
                                 )
 
             # Rule 1: Content in () is invalid (except .class or data.*)
