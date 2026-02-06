@@ -172,13 +172,14 @@ def validate_document(doc):
         return visitor.diagnostics
     except SyntaxError as e:
         # Convert Python SyntaxError to LSP Diagnostic
+        # This error blocks the AST visitor, so we provide an explicit message.
         range = Range(
             start=Position(line=e.lineno - 1, character=e.offset - 1),
             end=Position(line=e.lineno - 1, character=e.offset)
         )
         return [Diagnostic(
             range=range,
-            message=str(e),
+            message=f"Python Syntax Error: {str(e)}. (This error is blocking full htpy logic validation)",
             severity=DiagnosticSeverity.Error,
             source="htpy-lsp"
         )]
