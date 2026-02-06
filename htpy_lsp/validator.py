@@ -58,7 +58,7 @@ class HtpyVisitor(ast.NodeVisitor):
             for arg in node.args:
                 is_valid_positional = False
                 
-                # Check for class shorthand: ".class" or "#id"
+                # 1. Shorthand: ".class", "#id"
                 if isinstance(arg, ast.Constant) and isinstance(arg.value, str) and arg.value.startswith((".", "#")):
                     is_valid_positional = True
                     if non_shorthand_seen:
@@ -67,12 +67,18 @@ class HtpyVisitor(ast.NodeVisitor):
                             f"Class/ID shorthand '{arg.value}' should be positioned at the beginning of parentheses, before other positional helpers like data.*."
                         )
                 
-                # Check for Datastar helper: data.on(...), data.attr(...)
+                # 2. Datastar/Helpers: data.on(), data.signals, etc.
                 elif isinstance(arg, ast.Call) and isinstance(arg.func, ast.Attribute):
                     if isinstance(arg.func.value, ast.Name) and arg.func.value.id == "data":
                         is_valid_positional = True
                         non_shorthand_seen = True
                 
+                # 3. Variables/Signals/Attributes: approval_signals, user.attrs, *items
+                # We allow these to avoid false positives with helpers/signals stored in variables.
+                elif isinstance(arg, (ast.Name, ast.Attribute, ast.Starred)):
+                    is_valid_positional = True
+                    non_shorthand_seen = True
+
                 if not is_valid_positional:
                      msg = f"Content '{self.get_arg_text(arg)}' should be in brackets [], not parentheses ()."
                      if self._is_htpy_element(arg):

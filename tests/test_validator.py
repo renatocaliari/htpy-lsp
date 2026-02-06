@@ -79,6 +79,11 @@ div(
 )
         """, 5), # Expected 5: h2 in div, nested div in div, input in inner div, button call in inner div, string in button
         
+        # --- VARIABLES & SIGNALS (PASSTHROUGH) ---
+        ("section(approval_signals)", 0),             # PASS: Variables are allowed
+        ("div(user.profile, *args)", 0),             # PASS: Attributes and starred
+        ("base_layout(div['content'])", 0),          # PASS: Custom components NOT in HTPY_TAGS should be ignored
+        
         # --- RESPONSE & RETURN TYPES ---
         ("HTMLResponse(div['hello'])", 1),           # FAIL: Suggest HtpyResponse
         ("HTMLResponse(str(div['hello']))", 2),      # FAIL: Suggest HtpyResponse + no str()
