@@ -1,8 +1,0 @@
-{
-	"lsp": {
-		"htpy-lsp": {
-			"command": ["/Users/cali/.local/bin/htpy-lsp"],
-			"extensions": [".py"]
-		}
-	}
-}
