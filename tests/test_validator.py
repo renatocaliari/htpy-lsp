@@ -7,18 +7,9 @@ from unittest.mock import MagicMock
 import types
 
 # ---------------------------------------------------------
-# MOCK LSP PROTOCOL
+# USE REAL LSP PROTOCOL
 # ---------------------------------------------------------
-mock_lsp = types.ModuleType("lsprotocol")
-mock_types = types.ModuleType("lsprotocol.types")
-mock_types.Diagnostic = MagicMock()
-mock_types.DiagnosticSeverity = MagicMock()
-mock_types.Range = MagicMock()
-mock_types.Position = MagicMock()
-mock_types.PositionEncodingKind = MagicMock()
-mock_lsp.types = mock_types
-sys.modules["lsprotocol"] = mock_lsp
-sys.modules["lsprotocol.types"] = mock_types
+from lsprotocol.types import Diagnostic, Range, Position
 
 from htpy_lsp.validator import validate_document
 
@@ -65,9 +56,28 @@ def test_validator():
         # --- ATTR NAMES (class vs class_) ---
         ("div(class_='foo')", 0),                     # PASS: class_ is correct
         ("div(cls='foo')", 1),                        # FAIL: cls is incorrect
-        # Note: div(class='foo') would be a SyntaxError in Python. 
-        # But we can test it as a syntax error case.
         ("div(class='foo')", 1),                      # FAIL: Syntax Error (reserved word)
+        
+        # --- COMPLEX NESTED EXAMPLES ---
+        ("""
+div(
+    h2(class_="text-3xl font-bold")["My Clients"],
+    div(
+        input(
+             type_="text",
+             placeholder="Search clients...",
+             class_="input input-bordered w-full max-w-xs",
+             data_bind="searchQuery", 
+        ),
+        button(
+            class_="btn btn-primary",
+            onclick="window.location.href='/clients/new'",
+        )("New Client"),
+        class_="flex gap-4",
+    ),
+    class_="flex justify-between items-center mb-6",
+)
+        """, 5), # Expected 5: h2 in div, nested div in div, input in inner div, button call in inner div, string in button
         
         # --- RESPONSE & RETURN TYPES ---
         ("HTMLResponse(div['hello'])", 1),           # FAIL: Suggest HtpyResponse

@@ -1,18 +1,11 @@
 import ast
-from lsprotocol.types import Diagnostic, DiagnosticSeverity, Range, Position, PositionEncodingKind
+from lsprotocol.types import Diagnostic, DiagnosticSeverity, Position, Range
 
-# common html tags to check
+# Common htpy tags to monitor
 HTPY_TAGS = {
-    "a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", 
-    "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", 
-    "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", 
-    "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", 
-    "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", 
-    "mark", "menu", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", 
-    "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", 
-    "slot", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", 
-    "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", 
-    "video", "wbr"
+    "div", "span", "a", "p", "h1", "h2", "h3", "h4", "h5", "h6",
+    "ul", "li", "ol", "form", "input", "button", "label", "img",
+    "section", "header", "footer", "nav", "main", "article", "aside"
 }
 
 class HtpyVisitor(ast.NodeVisitor):
@@ -64,12 +57,10 @@ class HtpyVisitor(ast.NodeVisitor):
             non_shorthand_seen = False
             for arg in node.args:
                 is_valid_positional = False
-                is_shorthand = False
                 
                 # Check for class shorthand: ".class" or "#id"
                 if isinstance(arg, ast.Constant) and isinstance(arg.value, str) and arg.value.startswith((".", "#")):
                     is_valid_positional = True
-                    is_shorthand = True
                     if non_shorthand_seen:
                          self.add_diagnostic(
                             arg,
@@ -83,9 +74,13 @@ class HtpyVisitor(ast.NodeVisitor):
                         non_shorthand_seen = True
                 
                 if not is_valid_positional:
+                     msg = f"Content '{self.get_arg_text(arg)}' should be in brackets [], not parentheses ()."
+                     if self._is_htpy_element(arg):
+                         msg = f"Nested htpy element '{self.get_arg_text(arg)}' should be in brackets [], not parentheses ()."
+                     
                      self.add_diagnostic(
                         arg, 
-                        f"Content '{self.get_arg_text(arg)}' should be in brackets [], not parentheses (). Parentheses are exclusively for attributes (keyword arguments) or specialized helpers like data.*."
+                        f"{msg} Parentheses are exclusively for attributes (keyword arguments) or specialized helpers like data.*."
                     )
         
         self.generic_visit(node)
@@ -144,6 +139,14 @@ class HtpyVisitor(ast.NodeVisitor):
     def get_arg_text(self, node):
         if isinstance(node, ast.Constant):
             return str(node.value)
+        if isinstance(node, ast.Name):
+            return node.id
+        if isinstance(node, ast.Call):
+             return f"{self.get_arg_text(node.func)}(...)"
+        if isinstance(node, ast.Subscript):
+            return f"{self.get_arg_text(node.value)}[...]"
+        if isinstance(node, ast.Attribute):
+             return f"{self.get_arg_text(node.value)}.{node.attr}"
         return "..."
 
     def add_diagnostic(self, node, message):
@@ -164,20 +167,18 @@ def validate_document(doc):
         tree = ast.parse(doc.source)
         visitor = HtpyVisitor()
         visitor.visit(tree)
+        # Sort diagnostics by line then character
+        visitor.diagnostics.sort(key=lambda d: (d.range.start.line, d.range.start.character))
         return visitor.diagnostics
     except SyntaxError as e:
         # Convert Python SyntaxError to LSP Diagnostic
-        # lineno/offset can be None
-        line = (e.lineno - 1) if e.lineno is not None else 0
-        char = (e.offset - 1) if e.offset is not None else 0
-        
         range = Range(
-            start=Position(line=line, character=char),
-            end=Position(line=line, character=char + 1)
+            start=Position(line=e.lineno - 1, character=e.offset - 1),
+            end=Position(line=e.lineno - 1, character=e.offset)
         )
         return [Diagnostic(
             range=range,
-            message=f"Syntax Error: {e.msg}",
+            message=str(e),
             severity=DiagnosticSeverity.Error,
             source="htpy-lsp"
         )]
