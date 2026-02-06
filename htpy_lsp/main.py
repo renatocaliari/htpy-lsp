@@ -8,6 +8,7 @@ from lsprotocol.types import (
     DidSaveTextDocumentParams,
     Diagnostic,
     PublishDiagnosticsParams,
+    WORKSPACE_DID_CHANGE_WATCHED_FILES,
 )
 from htpy_lsp.validator import validate_document
 
@@ -36,6 +37,14 @@ async def did_save(ls: LanguageServer, params: DidSaveTextDocumentParams):
     ls.text_document_publish_diagnostics(
         PublishDiagnosticsParams(uri=params.text_document.uri, diagnostics=diagnostics)
     )
+
+@server.feature(WORKSPACE_DID_CHANGE_WATCHED_FILES)
+async def did_change_watched_files(ls: LanguageServer, params):
+    """
+    Silences the 'unknown method' warnings from the IDE.
+    We don't need to do anything here as we validate on open/save/change.
+    """
+    pass
 
 def main():
     server.start_io()
